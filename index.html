@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Racetrack Game</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .racetrack { display: flex; flex-wrap: wrap; width: 600px; margin: 20px auto; position: relative; }
+        .cell { width: 60px; height: 60px; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-size: 18px; background-color: lightgray; position: relative; }
+        .car { width: 30px; height: 30px; position: absolute; top: 70px; transition: all 0.3s; }
+        #timer { font-size: 24px; margin-top: 20px; }
+        #celebration { display: none; font-size: 24px; color: green; margin-top: 20px; }
+        #balloons { display: none; font-size: 50px; color: red; }
+    </style>
+</head>
+<body>
+
+    <h2>Reading Racetrack Game</h2>
+    <p>Move the car along the track and read the words out loud!</p>
+    <div id="timer">Time Left: 120</div>
+    <div class="racetrack" id="track"></div>
+    <div id="celebration">🎉 Well Done! 🎉</div>
+    <div id="balloons">🎈🎈🎈</div>
+    <audio id="clapSound" src="https://www.soundjay.com/human/applause-01.mp3"></audio>
+
+    <script>
+        let words = ["cat", "dog", "run", "jump", "big", "small", "red", "blue", "fast", "slow"];
+        let track = document.getElementById("track");
+        let timerEl = document.getElementById("timer");
+        let celebration = document.getElementById("celebration");
+        let balloons = document.getElementById("balloons");
+        let clapSound = document.getElementById("clapSound");
+        let timeLeft = 120, position = 0;
+
+        // Create track cells with words and a draggable car
+        let wordList = words.flatMap(word => [word, word, word]);
+        wordList.forEach((word, index) => {
+            let cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.innerText = word;
+            cell.dataset.index = index;
+            track.appendChild(cell);
+        });
+
+        let car = document.createElement("img");
+        car.src = "https://upload.wikimedia.org/wikipedia/commons/3/3d/Red_car.png";
+        car.classList.add("car");
+        car.style.left = "0px";
+        track.appendChild(car);
+
+        // Start the timer
+        let timer = setInterval(() => {
+            timeLeft--;
+            timerEl.innerText = "Time Left: " + timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                alert("Time's up! Try again.");
+            }
+        }, 1000);
+
+        // Move the car manually by clicking on each cell
+        document.querySelectorAll(".cell").forEach(cell => {
+            cell.addEventListener("click", () => {
+                let index = parseInt(cell.dataset.index);
+                if (index === position) {
+                    position++;
+                    moveCar(position);
+                }
+            });
+        });
+
+        function moveCar(position) {
+            let cells = document.querySelectorAll(".cell");
+            if (position < cells.length) {
+                let targetCell = cells[position].getBoundingClientRect();
+                car.style.left = `${targetCell.left}px`;
+                car.style.top = `${targetCell.top}px`;
+            }
+
+            if (position === 29) {
+                clearInterval(timer);
+                celebration.style.display = "block";
+                balloons.style.display = "block";
+                clapSound.play();
+                setTimeout(() => alert("🎉 Congratulations! You completed the game! 🎉"), 500);
+            }
+        }
+    </script>
+
+</body>
+</html>
